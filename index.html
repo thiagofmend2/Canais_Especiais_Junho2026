@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap' );
         body { font-family: 'Inter', sans-serif; }
         .chart-container { min-height: 350px; }
     </style>
@@ -33,7 +33,11 @@
             </div>
             <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-400">
                 <div class="flex items-center justify-between">
-                    <div><p class="text-slate-600 text-sm font-medium uppercase">Base de Ativos</p><p class="text-3xl font-bold text-slate-900 mt-2">164.717</p></div>
+                    <div>
+                        <p class="text-slate-600 text-sm font-medium uppercase">Base de Ativos</p>
+                        <p class="text-3xl font-bold text-slate-900 mt-2">164.717</p>
+                        <p class="text-[10px] text-slate-400 mt-1 italic">Base GPO não inclusa</p>
+                    </div>
                     <div class="bg-blue-100 p-4 rounded-full"><i data-lucide="users" class="w-8 h-8 text-blue-400"></i></div>
                 </div>
             </div>
@@ -66,52 +70,25 @@
                         <div class="relative"><div id="segmentoChart"></div><div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -mt-2 text-center pointer-events-none"><span class="block text-4xl font-bold text-slate-900">143</span><span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Segmentado*</span></div></div>
                         <div class="space-y-4" id="segmentoLegend"></div>
                     </div>
-                    <p class="text-[10px] text-slate-400 mt-4 italic">*Inclui Chat Bot e Reclame Aqui PS conforme solicitado.</p>
+                    <div class="text-[10px] text-slate-400 mt-4 italic space-y-1">
+                            <p>*Reclame aqui PS: Página secundária do Sírio Libanês</p>
+                            <p>*Chat bot: Pesquisa de satisfação</p>
+                        </div>
                 </div>
             </div>
         </div>
         <div class="bg-white rounded-lg shadow-md p-6 mb-8"><h2 class="text-lg font-bold text-slate-900 mb-6 uppercase">Evolução de Atendimentos por IE</h2><div id="ieEvolutionChart" class="chart-container"></div></div>
-        <section class="bg-white rounded-lg shadow-md p-6 mb-8"><h2 class="text-lg font-bold text-slate-900 mb-6 uppercase">Análise Executiva</h2><div class="space-y-4" id="executiveAnalysis"></div></section>
+        <section class="bg-white rounded-lg shadow-md p-6 mb-8"><h2 class="text-lg font-bold text-slate-900 mb-6 uppercase">Principais Insights</h2><div class="space-y-4" id="executiveAnalysis"></div></section>
         <section class="space-y-6 mb-8" id="ieCards"></section>
         <section class="bg-white rounded-lg shadow-md p-6 mb-8"><h2 class="text-lg font-bold text-slate-900 mb-6 uppercase">Maiores Concentradores de Demanda</h2><div class="overflow-x-auto"><table class="w-full"><thead><tr class="bg-blue-600 text-white"><th class="px-4 py-3 text-left text-sm font-semibold">Rank</th><th class="px-4 py-3 text-left text-sm font-semibold">Motivo de Contato</th><th class="px-4 py-3 text-left text-sm font-semibold">Classificação de Assuntos</th><th class="px-4 py-3 text-right text-sm font-semibold">Volume</th><th class="px-4 py-3 text-right text-sm font-semibold">%</th></tr></thead><tbody id="motivosTableBody"></tbody></table></div></section>
     </main>
     <script>
         const ieData = [{name:"PUCRS ONLINE",value:73},{name:"FAAP ONLINE",value:23},{name:"FIA ONLINE",value:20},{name:"IMPACTA DIGITAL",value:9},{name:"FSL DIGITAL",value:6},{name:"UNINASSAU DIGITAL",value:3},{name:"UNESC DIGITAL",value:1}];
-        
-        // Segmento Data Calculations:
-        // RA: 5+8+13+47+7+2+0 = 82
-        // PROCON: 1+4+4+19+0+1+1 = 30
-        // Ouvidoria: 0+8+6+7+2+0+0 = 23
-        // Chat Bot: 0+0+4+0+0+0+0 = 4
-        // Reclame Aqui PS: 4+0+0+0+0+0+0 = 4
-        const segmentoData = [
-            {name:"RA",value:82,color:"#1e3a8a"},
-            {name:"PROCON",value:30,color:"#fbbf24"},
-            {name:"Ouvidoria",value:23,color:"#60a5fa"},
-            {name:"Chat Bot",value:4,color:"#10b981"},
-            {name:"Reclame Aqui PS",value:4,color:"#ef4444"}
-        ];
-        const totalSegmentado = 143; // 82+30+23+4+4
-
+        const segmentoData = [{name:"RA",value:82,color:"#1e3a8a"},{name:"PROCON",value:30,color:"#fbbf24"},{name:"Ouvidoria",value:23,color:"#60a5fa"},{name:"Chat Bot",value:4,color:"#10b981"},{name:"Reclame Aqui PS",value:4,color:"#ef4444"}];
+        const totalSegmentado = 143;
         const historicoMensal = [{mes:"jan/26",total:166,base:134964,percentual:0.12},{mes:"fev/26",total:182,base:144244,percentual:0.13},{mes:"mar/26",total:170,base:151440,percentual:0.11},{mes:"abr/26",total:146,base:156615,percentual:0.09},{mes:"mai/26",total:134,base:162397,percentual:0.08},{mes:"jun/26",total:135,base:164717,percentual:0.08}];
-        const historicoIE = [
-            {mes:"jan/26",data:[121,20,14,3,3,0,5]},
-            {mes:"fev/26",data:[136,12,15,7,4,3,5]},
-            {mes:"mar/26",data:[102,24,23,10,6,1,4]},
-            {mes:"abr/26",data:[95,18,9,4,9,0,11]},
-            {mes:"mai/26",data:[80,17,18,8,4,2,5]},
-            {mes:"jun/26",data:[73,23,20,9,3,1,6]} // Order: PUCRS, FAAP, FIA, IMPACTA, UNINASSAU, UNESC, FSL
-        ];
-
-        const ieCardsData = [
-            { name: "PUCRS ONLINE", logo: "https://bucket-vitrine-wl-prod.edtech.com.br/assets-headless/Logo_Icon_0bd832db2a_4f8bfdd079.svg", motivations: "Critérios e taxa, Flexibilidade de pagamento, Certificado", stats: { ra: 47, ouv: 7, pro: 19 }, insight: "Maior volume concentrado em Reclame Aqui (64,4% da IE)" },
-            { name: "FAAP ONLINE", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQp6eFbWK4LH6au52iHgm_VpLwDTjZKLz0Sg&s", motivations: "Cancelamento, Financeiro e conteúdo", stats: { ra: 13, ouv: 6, pro: 4, bot: 4 }, insight: "Presença de demanda via Chat Bot" },
-            { name: "FIA ONLINE", logo: "https://www.fiaonline.com.br/hs-fs/hubfs/FIA-Online---Logo-(Branco)-1-1.webp", motivations: "Critérios e taxa, Flexibilidade de pagamentos, Notas", stats: { ra: 8, ouv: 8, pro: 4 }, insight: "Equilíbrio entre RA e Ouvidoria" },
-            { name: "IMPACTA DIGITAL", logo: "https://digital.impacta.com.br/hs-fs/hubfs/FACULDADE-LOGO-DIGITAL-NORMAL.png", motivations: "Cancelamento, Acessos, Atendimento", stats: { ra: 7, ouv: 2, pro: 0 }, insight: "Foco em suporte operacional e cancelamento" },
-            { name: "FSL DIGITAL", logo: "https://digital.faculdadesiriolibanes.org.br/hs-fs/hubfs/logo-sirio-libanes-negativo.png", motivations: "Documentação, Financeiro, Cancelamento", stats: { ra: 5, ouv: 0, pro: 1, raps: 4 }, insight: "Presença de Reclame Aqui PS" },
-            { name: "UNINASSAU DIGITAL", logo: "https://vest.uninassau.edu.br/logos/uninassau/dark.svg", motivations: "Divergência Financeira", stats: { ra: 2, ouv: 0, pro: 1 }, insight: "Volume reduzido com foco financeiro" },
-            { name: "UNESC DIGITAL", logo: "https://bucket-vitrine-wl-prod.edtech.com.br/assets-headless/logo_49f3ba3e59_1_1_1_5cace08c25.webp", motivations: "Critérios e Taxa", stats: { ra: 0, ouv: 0, pro: 1 }, insight: "Volume residual (1 caso)" }
-        ];
+        const historicoIE = [{mes:"jan/26",data:[121,20,14,3,3,0,5]},{mes:"fev/26",data:[136,12,15,7,4,3,5]},{mes:"mar/26",data:[102,24,23,10,6,1,4]},{mes:"abr/26",data:[95,18,9,4,9,0,11]},{mes:"mai/26",data:[80,17,18,8,4,2,5]},{mes:"jun/26",data:[73,23,20,9,3,1,6]}];
+        const ieCardsData = [{name:"PUCRS ONLINE",logo:"https://bucket-vitrine-wl-prod.edtech.com.br/assets-headless/Logo_Icon_0bd832db2a_4f8bfdd079.svg",motivations:"Critérios e taxa, Flexibilidade de pagamento, Certificado",stats:{ra:47,ouv:7,pro:19},insight:"Maior volume concentrado em Reclame Aqui (64,4% da IE )"},{name:"FAAP ONLINE",logo:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQp6eFbWK4LH6au52iHgm_VpLwDTjZKLz0Sg&s",motivations:"Cancelamento, Financeiro e conteúdo",stats:{ra:13,ouv:6,pro:4,bot:4},insight:"Presença de demanda via Chat Bot"},{name:"FIA ONLINE",logo:"https://www.fiaonline.com.br/hs-fs/hubfs/FIA-Online---Logo-(Branco )-1-1.webp",motivations:"Critérios e taxa, Flexibilidade de pagamentos, Notas",stats:{ra:8,ouv:8,pro:4},insight:"Equilíbrio entre RA e Ouvidoria"},{name:"IMPACTA DIGITAL",logo:"https://digital.impacta.com.br/hs-fs/hubfs/FACULDADE-LOGO-DIGITAL-NORMAL.png",motivations:"Cancelamento, Acessos, Atendimento",stats:{ra:7,ouv:2,pro:0},insight:"Foco em suporte operacional e cancelamento"},{name:"FSL DIGITAL",logo:"https://digital.faculdadesiriolibanes.org.br/hs-fs/hubfs/logo-sirio-libanes-negativo.png",motivations:"Documentação, Financeiro, Cancelamento",stats:{ra:5,ouv:0,pro:1,raps:4},insight:"Presença de Reclame Aqui PS"},{name:"UNINASSAU DIGITAL",logo:"https://vest.uninassau.edu.br/logos/uninassau/dark.svg",motivations:"Divergência Financeira",stats:{ra:2,ouv:0,pro:1},insight:"Volume reduzido com foco financeiro"},{name:"UNESC DIGITAL",logo:"https://bucket-vitrine-wl-prod.edtech.com.br/assets-headless/logo_49f3ba3e59_1_1_1_5cace08c25.webp",motivations:"Critérios e Taxa",stats:{ra:0,ouv:0,pro:1},insight:"Volume residual (1 caso )"}];
 
         const ieTable = document.getElementById('ieTableBody');
         ieData.forEach(item => { ieTable.innerHTML += `<tr class="border-b border-slate-100 hover:bg-slate-50"><td class="px-6 py-3 text-sm text-slate-900">${item.name}</td><td class="px-6 py-3 text-sm text-slate-900 text-right font-medium">${item.value}</td></tr>`; });
@@ -129,27 +106,14 @@
         const ieEvolutionOptions = { series: [{ name: 'PUCRS', data: historicoIE.map(h => h.data[0]) }, { name: 'FAAP', data: historicoIE.map(h => h.data[1]) }, { name: 'FIA', data: historicoIE.map(h => h.data[2]) }, { name: 'IMPACTA', data: historicoIE.map(h => h.data[3]) }, { name: 'UNINASSAU', data: historicoIE.map(h => h.data[4]) }, { name: 'UNESC', data: historicoIE.map(h => h.data[5]) }, { name: 'FSL', data: historicoIE.map(h => h.data[6]) }], chart: { type: 'bar', height: 350, toolbar: { show: false } }, plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 4, dataLabels: { position: 'top' } } }, dataLabels: { enabled: true, offsetY: -20, style: { fontSize: '10px', colors: ["#304758"] } }, xaxis: { categories: historicoIE.map(h => h.mes) }, colors: ['#1e3a8a', '#fbbf24', '#60a5fa', '#10b981', '#ef4444', '#f97316', '#8b5cf6'], legend: { position: 'bottom' } };
         new ApexCharts(document.querySelector("#ieEvolutionChart"), ieEvolutionOptions).render();
 
-        const analysis = [
-            { icon: 'activity', color: 'blue', title: 'Estabilidade no volume total', text: 'O volume de Canais Especiais manteve-se estável com 135 atendimentos em junho, contra 134 em maio, demonstrando controle operacional.' }, 
-            { icon: 'trending-up', color: 'yellow', title: 'Taxa de contato mínima', text: 'A taxa de atendimentos sobre a base de ativos permanece em 0,08%, um dos menores índices do ano, indicando alta maturidade da base.' }, 
-            { icon: 'users', color: 'purple', title: 'Predomínio do Reclame Aqui', text: 'O segmento RA concentra 60,7% dos atendimentos totais de Canais Especiais, sendo o principal ponto de atenção.' }, 
-            { icon: 'alert-circle', color: 'red', title: 'Financeiro como maior detrator', text: 'Temas financeiros (Financeiro + Cancelamento) somam 43% das motivações, sendo o maior concentrador de demanda crítica.' }
-        ];
+        const analysis = [{ icon: 'activity', color: 'blue', title: 'Estabilidade no volume total', text: 'O volume de Canais Especiais manteve-se estável com 135 atendimentos em junho, contra 134 em maio, demonstrando controle operacional.' }, { icon: 'trending-up', color: 'yellow', title: 'Taxa de contato mínima', text: 'A taxa de atendimentos sobre a base de ativos permanece em 0,08%, um dos menores índices do ano, indicando alta maturidade da base.' }, { icon: 'users', color: 'purple', title: 'Predomínio do Reclame Aqui', text: 'O segmento RA concentra 60,7% dos atendimentos totais de Canais Especiais, sendo o principal ponto de atenção.' }, { icon: 'alert-circle', color: 'red', title: 'Financeiro como maior detrator', text: 'Temas financeiros (Financeiro + Cancelamento) somam 43% das motivações, sendo o maior concentrador de demanda crítica.' }];
         const analysisDiv = document.getElementById('executiveAnalysis');
         analysis.forEach(item => { analysisDiv.innerHTML += `<div class="flex gap-4 p-4 bg-${item.color}-50 rounded-lg border-l-4 border-${item.color}-500"><div class="flex-shrink-0"><i data-lucide="${item.icon}" class="w-6 h-6 text-${item.color}-600 mt-1"></i></div><div><p class="font-semibold text-slate-900">${item.title}</p><p class="text-sm text-slate-700 mt-1">${item.text}</p></div></div>`; });
 
         const cardsDiv = document.getElementById('ieCards');
-        ieCardsData.forEach(ie => { 
-            cardsDiv.innerHTML += `<div class="bg-white rounded-lg shadow-md p-6"><div class="grid grid-cols-1 md:grid-cols-4 gap-6"><div class="flex items-start justify-center md:justify-start"><div class="bg-black p-4 rounded-lg w-[150px] h-[150px] flex items-center justify-center border border-slate-700"><img src="${ie.logo}" alt="${ie.name}" class="w-full h-full object-contain"></div></div><div class="md:col-span-3 space-y-4"><h3 class="font-bold text-slate-900 text-lg">${ie.name}</h3><div><p class="text-xs font-semibold text-slate-600 mb-1">PRINCIPAIS MOTIVAÇÕES</p><p class="text-sm text-slate-700 leading-relaxed">${ie.motivations}</p></div><div class="p-3 bg-blue-50 rounded border-l-4 border-blue-600"><p class="text-xs text-slate-700 italic">${ie.insight}</p></div><div class="flex gap-8"><div><p class="text-xs text-slate-600 font-semibold">RA</p><p class="text-lg font-bold text-slate-900">${ie.stats.ra}</p></div><div><p class="text-xs text-slate-600 font-semibold">Ouvidoria</p><p class="text-lg font-bold text-slate-900">${ie.stats.ouv}</p></div><div><p class="text-xs text-slate-600 font-semibold">PROCON</p><p class="text-lg font-bold text-slate-900">${ie.stats.pro}</p></div>${ie.stats.bot?`<div><p class="text-xs text-slate-600 font-semibold">Chat Bot</p><p class="text-lg font-bold text-slate-900">${ie.stats.bot}</p></div>`:''}${ie.stats.raps?`<div><p class="text-xs text-slate-600 font-semibold">RA PS</p><p class="text-lg font-bold text-slate-900">${ie.stats.raps}</p></div>`:''}</div></div></div></div>`; 
-        });
+        ieCardsData.forEach(ie => { cardsDiv.innerHTML += `<div class="bg-white rounded-lg shadow-md p-6"><div class="grid grid-cols-1 md:grid-cols-4 gap-6"><div class="flex items-start justify-center md:justify-start"><div class="bg-black p-4 rounded-lg w-[150px] h-[150px] flex items-center justify-center border border-slate-700"><img src="${ie.logo}" alt="${ie.name}" class="w-full h-full object-contain"></div></div><div class="md:col-span-3 space-y-4"><h3 class="font-bold text-slate-900 text-lg">${ie.name}</h3><div><p class="text-xs font-semibold text-slate-600 mb-1">PRINCIPAIS MOTIVAÇÕES</p><p class="text-sm text-slate-700 leading-relaxed">${ie.motivations}</p></div><div class="p-3 bg-blue-50 rounded border-l-4 border-blue-600"><p class="text-xs text-slate-700 italic">${ie.insight}</p></div><div class="flex gap-8"><div><p class="text-xs text-slate-600 font-semibold">RA</p><p class="text-lg font-bold text-slate-900">${ie.stats.ra}</p></div><div><p class="text-xs text-slate-600 font-semibold">Ouvidoria</p><p class="text-lg font-bold text-slate-900">${ie.stats.ouv}</p></div><div><p class="text-xs text-slate-600 font-semibold">PROCON</p><p class="text-lg font-bold text-slate-900">${ie.stats.pro}</p></div>${ie.stats.bot?`<div><p class="text-xs text-slate-600 font-semibold">Chat Bot</p><p class="text-lg font-bold text-slate-900">${ie.stats.bot}</p></div>`:''}${ie.stats.raps?`<div><p class="text-xs text-slate-600 font-semibold">RA PS</p><p class="text-lg font-bold text-slate-900">${ie.stats.raps}</p></div>`:''}</div></div></div></div>`; });
 
-        const motivos = [
-            ["Financeiro", "Dúvidas sobre faturas, pagamentos, critérios de taxas e flexibilização de débitos.", 30, "22.2%"],
-            ["Cancelamento", "Solicitações de encerramento de matrícula e interrupção de serviços.", 28, "20.7%"],
-            ["Documentos", "Dúvidas sobre certificação, diplomas e validação de documentação acadêmica.", 22, "16.3%"],
-            ["Conteúdo", "Questões relacionadas ao material didático, aulas e avaliações.", 9, "6.7%"],
-            ["Acesso", "Dificuldades técnicas de login, senha ou instabilidade na plataforma.", 8, "5.9%"]
-        ];
+        const motivos = [["Financeiro", "Dúvidas sobre faturas, pagamentos, critérios de taxas e flexibilização de débitos.", 30, "22.2%"],["Cancelamento", "Solicitações de encerramento de matrícula e interrupção de serviços.", 28, "20.7%"],["Documentos", "Dúvidas sobre certificação, diplomas e validação de documentação acadêmica.", 22, "16.3%"],["Conteúdo", "Questões relacionadas ao material didático, aulas e avaliações.", 9, "6.7%"],["Acesso", "Dificuldades técnicas de login, senha ou instabilidade na plataforma.", 8, "5.9%"]];
         const motivosTable = document.getElementById('motivosTableBody');
         motivos.forEach((m, i) => { motivosTable.innerHTML += `<tr class="border-b border-slate-200 ${i%2===0?'bg-slate-50':'bg-white'}"><td class="px-4 py-4"><div class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-sm">${i+1}</div></td><td class="px-4 py-4 text-sm font-medium text-slate-900">${m[0]}</td><td class="px-4 py-4 text-sm text-slate-700">${m[1]}</td><td class="px-4 py-4 text-sm text-slate-900 text-right font-bold">${m[2]}</td><td class="px-4 py-4 text-sm text-slate-500 text-right">${m[3]}</td></tr>`; });
 
@@ -157,3 +121,4 @@
     </script>
 </body>
 </html>
+
